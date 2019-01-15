@@ -1,0 +1,54 @@
+{% extends 'index.html' %}
+{% block page_title %} Factura No. {{factura.id}} {% endblock %}
+{% block menu_izquierdo %}
+ <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="{% url 'productos' %}">Productos <span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="{% url 'facturas' %}">Facturas</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+          </ul>
+
+
+        </div>
+{% endblock %}
+{% block content %}
+    <p><strong> Factura No. {{factura.id}} </strong></p>
+    <p><strong> Factura No. </strong></p>
+    <p><strong> Factura No. </strong></p>
+    <p><strong> Factura No. </strong></p>
+    <p><strong> Factura No. </strong></p>
+    <table id="tproductos">
+    <thead>
+         <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Total</th>
+            </tr>
+    </thead>
+    <tbody>
+              {% for detalle in factura.detalle_factura_set.all %}
+                <tr>
+                    <td>{{detalle.producto.description}}</td>
+                    <td>{{detalle.cantidad}}</td>
+                    <td>{{detalle.precio}}</td>
+                    <td>{{detalle.subtotal}}</td>
+            </tr>
+            {%endfor%}
+    </tbody>
+</table>
+
+{% endblock %}
+{% block scripts%}
+    <script>
+        $(document).ready( function () {
+        var productos = $('#tproductos').DataTable({
+            select: true
+        });
+        });
+
+    </script>
+{% endblock %}

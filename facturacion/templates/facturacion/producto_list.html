@@ -1,0 +1,49 @@
+{% extends 'index.html' %}
+{% block page_title %} Productos {% endblock %}
+{% block menu_izquierdo %}
+ <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="{% url 'productos' %}">Productos <span class="sr-only">(current)</span></a></li>
+            <li><a href="{% url 'facturas' %}">Facturas</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+          </ul>
+
+
+        </div>
+{% endblock %}
+{% block content %}
+    {% if producto_list %}
+     <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Descipcion</th>
+                  <th>Precio</th>
+                  <th>Existencias</th>
+                  <th>Actions</th>
+
+                </tr>
+              </thead>
+              <tbody>
+
+                {% for producto in producto_list %}
+                <tr>
+                  <td>{{producto.id}}</td>
+                  <td>{{producto.description}}</td>
+                  <td>{{producto.precio}}</td>
+                  <td>{{producto.stock}}</td>
+                  <td><button class="btn"><a href="{% url 'producto-edit' producto.id %}/edit">Editar</a></button></td>
+
+                </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
+    {% else %}
+        <p class="danger">Lo sentimos no hay datos</p>
+    {% endif %}
+
+{% endblock %}

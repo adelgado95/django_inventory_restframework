@@ -1,0 +1,140 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <table id="select_productos">
+         <thead>
+            <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+            </tr>
+         </thead>
+        <tbody>
+            {%for producto in productos%}
+                <tr>
+                    <td>{{producto.id}}</td>
+                    <td>{{producto.description}}</td>
+                    <td>{{producto.precio}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+         </table>
+         </br><input id="btnSeleccionar" type="button" class="btn btn-success" value="Aceptar"></input>
+    </div>
+
+  </div>
+</div>
+<h3>Factura No:<h2 id="nfactura">{{no_factura}}</h2></h3>
+<form>
+    <div class="form-group">
+    <label for="n_producto" class="col-sm-1 col-form-label">No.Producto</label>
+    <div class="col-sm-4">
+        <input id="n_producto"  class="form-control" type="text">
+     </div>
+         <input type="button" class="btn btn-success" value="Aceptar" data-toggle="modal" data-target="#exampleModalLong">Agregar</input>
+    </div>
+</form>
+<table id="tproductos">
+    <thead>
+         <tr>
+                <th>IdProducto</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Total</th>
+            </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<input type="button" id="btnFacturar" value="Facturar">
+{% endblock %}
+{% block scripts%}
+    <script>
+        $(document).ready( function () {
+            /*-------------Inicializar DataTables -----------------*/
+            var selected;
+            var productos = $('#tproductos').DataTable({
+                select: true
+            });
+            var table = $('#select_productos').DataTable({
+                select: true
+            });
+         /*-------------Inicializar On Click de DataTable Modal -----------------*/
+            $('#select_productos tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+                }
+                else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                    selected = table.row(this).data();
+                    $('#exampleModalLong').modal('toggle');
+                        productos.row.add([selected[0],selected[1],selected[2],selected[0],(selected[2]*selected[0])]).draw();
+                        console.log(selected);
+                }
+            });
+         /*-------------MOstrar model con boton -----------------*/
+            $('#exampleModalLong').on('shown.bs.modal', function (){
+            });
+
+         /*-------------Boton Seleccionar dentro del modal -----------------*/
+            $('#btnSeleccionar').click(function(){
+                 console.log(selected);
+            });
+
+        /*------------------Boton para facturar -----------------*/
+            $("#btnFacturar").click(function(){
+                var nfact = $("#nfactura").text();
+                var list = [];
+                productos.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                    var data = this.data();
+                    item = {}
+                    item ["producto"] = parseInt(data[0]);
+                    item ["factura"] = parseInt(nfact);
+                    item ["cantidad"] = parseInt(data[2]);
+                    item ["precio"] = parseFloat(data[3]);
+                    item ["subtotal"] = parseFloat(data[4]);
+
+                    list.push(item);
+                 });
+                console.log(list);
+                /*----Llamada de ajax --------------*/
+
+                    $.ajax({
+                        type:'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data:JSON.stringify(list),
+                        url:'http://localhost:8000/apiv2/detalle/',
+                        success:function(datos){
+                            alert("Se han insertado"+datos+"filas");
+                        },
+                         error: function (xhr, ajaxOptions, thrownError) {
+                            alert(xhr.status);
+                            alert(thrownError);
+                            console.log(JSON.stringify(list));
+                        },
+                    });
+                productos.clear().draw();
+
+            });
+
+
+        /*COnfirmacion antes de cerrar la pestaña actual*/
+
+            $(window).bind('beforeunload', function(){
+              return 'Estas seguro que deseas abandonar la pagina?';
+            });
+            $(window).unload(function(){
+                alert('Bye.');
+            });
+
+    });
+    </script>
+{% endblock %}
